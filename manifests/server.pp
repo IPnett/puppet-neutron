@@ -34,6 +34,9 @@
 #   (optional) What auth system to use
 #   Defaults to 'keystone'. Can other be 'noauth'
 #
+# [*auth_use_deprecated]
+#   (optional) Set to true to override auth deprecation
+#
 # [*auth_host*]
 #   (optional) DEPRECATED. The keystone host
 #   Defaults to localhost.
@@ -256,6 +259,7 @@ class neutron::server (
   $auth_password                    = false,
   $auth_region                      = undef,
   $auth_type                        = 'keystone',
+  $auth_use_deprecated              = false,
   $auth_tenant                      = 'services',
   $auth_user                        = 'neutron',
   $auth_uri                         = false,
@@ -440,7 +444,8 @@ class neutron::server (
       }
 
       # if both auth_uri and identity_uri are set we skip these deprecated settings entirely
-      if !$auth_uri or !$identity_uri {
+      #  -- unless auth_use_deprecated is set, in which case the old configs are used anyway
+      if !$auth_uri or !$identity_uri or $auth_use_deprecated {
 
         if $auth_admin_prefix {
           warning('The auth_admin_prefix parameter is deprecated. Please use auth_uri and identity_uri instead.')
